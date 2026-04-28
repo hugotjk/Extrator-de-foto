@@ -1,0 +1,6 @@
+{
+  "name": "Extrator de Fotos de Catálogo PDF",
+  "description": "Extrai automaticamente fotos de produtos de catálogos PDF, renomeando-as com suas referências e baixando-as em um arquivo ZIP.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
