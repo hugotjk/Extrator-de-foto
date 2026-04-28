@@ -26,7 +26,7 @@ export default function App() {
   const [extractedCount, setExtractedCount] = useState(0);
   const [errorDetails, setErrorDetails] = useState<string | null>(null);
   const [quality, setQuality] = useState(0.7);
-  const [scale, setScale] = useState(1.2);
+  const [scale, setScale] = useState(1.5);
   const [isOptimized, setIsOptimized] = useState(false);
   const [extractedItems, setExtractedItems] = useState<{ref: string, page: number}[]>([]);
 
@@ -43,15 +43,15 @@ export default function App() {
       const sizeInMB = selectedFile.size / (1024 * 1024);
       if (sizeInMB > 50) {
         setQuality(0.5);
-        setScale(1.0);
+        setScale(1.2);
         setIsOptimized(true);
       } else if (sizeInMB > 20) {
         setQuality(0.6);
-        setScale(1.1);
+        setScale(1.3);
         setIsOptimized(true);
       } else {
         setQuality(0.7);
-        setScale(1.2);
+        setScale(1.5);
         setIsOptimized(false);
       }
     }
@@ -175,9 +175,6 @@ export default function App() {
               <h2 className="text-4xl font-extrabold tracking-tight text-gray-900 leading-tight">
                 Extraia imagens e <span className="text-red-600">renomeie</span> automaticamente.
               </h2>
-              <p className="text-lg text-gray-500 leading-relaxed">
-                Igual ao iLovePDF, mas com o poder da IA para identificar referências e organizar seus arquivos.
-              </p>
             </div>
 
             {/* Upload Area */}

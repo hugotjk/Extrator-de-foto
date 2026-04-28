@@ -39,23 +39,22 @@ export async function extractProductsFromPage(base64Image: string, retryCount = 
   const model = "gemini-3.1-flash-lite-preview";
   const MAX_RETRIES = 5;
   
-  const prompt = `Analise esta página de catálogo de produtos com precisão cirúrgica.
-Sua tarefa é extrair cada produto individual e associá-lo ao seu código de referência correto.
+  const prompt = `Analise esta página de catálogo com inteligência visual apurada.
+Sua tarefa é extrair apenas IMAGENS DE PRODUTOS individuais que possuam um código de referência associado.
 
-INSTRUÇÕES DE LOCALIZAÇÃO:
-- O código de referência pode estar ACIMA, ABAIXO, à ESQUERDA ou à DIREITA da foto do produto.
-- Geralmente é um código alfanumérico (ex: 1900022102-3, REF-123, 456.789).
-- Se houver múltiplos códigos, escolha o que parece ser o identificador principal do produto.
+INSTRUÇÕES DE IDENTIFICAÇÃO:
+1. FOCO EM PRODUTOS: Identifique apenas objetos/produtos do catálogo (ex: calçados, roupas, acessórios). IGNORE imagens institucionais, logos de marcas, fotos de modelos sem referência direta ou elementos decorativos.
+2. LOCALIZAÇÃO DA REFERÊNCIA: O código de referência (que pode conter letras, números ou hífens) está sempre LOCALIZADO PRÓXIMO ao produto. Pode estar acima, abaixo ou nas laterais.
+3. VÍNCULO ÚNICO: Garanta que cada referência seja associada à foto correspondente.
 
 REGRAS DE EXTRAÇÃO:
-1. "reference": O texto exato do código de referência. Remova espaços extras.
-2. "box_2d": A caixa delimitadora [ymin, xmin, ymax, xmax] da FOTO do produto (apenas a imagem do produto, sem o texto da referência).
-3. Use coordenadas normalizadas de 0 a 1000.
+- "reference": O código de identificação exato (remova textos extras como cores ou preços, pegue apenas o código base).
+- "box_2d": A caixa delimitadora [ymin, xmin, ymax, xmax] da FOTO do produto. Tente não incluir o texto dentro do recorte.
+- Coordenadas normalizadas de 0 a 1000.
 
 REGRAS CRÍTICAS:
-- Se a página for uma capa, índice ou não contiver produtos claros com referências, retorne uma lista vazia: [].
-- Garanta que a caixa (box_2d) englobe todo o produto, mas evite incluir o texto da referência dentro da imagem recortada.
-- Retorne APENAS o JSON.`;
+- Se não houver produtos com referências claras na página, retorne [].
+- Retorne APENAS o JSON no formato solicitado.`;
 
   try {
     const result = await ai.models.generateContent({
