@@ -26,7 +26,7 @@ export default function App() {
   const [extractedCount, setExtractedCount] = useState(0);
   const [errorDetails, setErrorDetails] = useState<string | null>(null);
   const [quality, setQuality] = useState(0.7);
-  const [scale, setScale] = useState(1.5);
+  const [scale, setScale] = useState(1.2);
   const [isOptimized, setIsOptimized] = useState(false);
   const [extractedItems, setExtractedItems] = useState<{ref: string, page: number}[]>([]);
 
@@ -47,11 +47,11 @@ export default function App() {
         setIsOptimized(true);
       } else if (sizeInMB > 20) {
         setQuality(0.6);
-        setScale(1.2);
+        setScale(1.1);
         setIsOptimized(true);
       } else {
         setQuality(0.7);
-        setScale(1.5);
+        setScale(1.2);
         setIsOptimized(false);
       }
     }
@@ -74,7 +74,7 @@ export default function App() {
       setState({ status: 'processing', message: 'Iniciando análise...', progress: 20 });
 
       // Process pages in small batches to speed up while respecting rate limits
-      const CONCURRENCY = 2; // Process 2 pages at a time
+      const CONCURRENCY = 3; // Process 3 pages at a time
       const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
       
       for (let i = 0; i < pageNumbers.length; i += CONCURRENCY) {

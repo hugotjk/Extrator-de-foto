@@ -1,6 +1,26 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { GoogleGenAI, Type } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+// Safe access to process.env to prevent crashes on Vercel/Production
+const getApiKey = () => {
+  try {
+    // Priority: system env -> fallback to vite prefix for standalone deployments
+    return process.env.GEMINI_API_KEY || (import.meta as any).env.VITE_GEMINI_API_KEY || "";
+  } catch (e) {
+    try {
+      return (import.meta as any).env.VITE_GEMINI_API_KEY || "";
+    } catch (inner) {
+      return "";
+    }
+  }
+};
+
+const apiKey = getApiKey();
+const ai = new GoogleGenAI({ apiKey });
 
 export interface ProductExtraction {
   reference: string;
@@ -12,7 +32,11 @@ async function wait(ms: number) {
 }
 
 export async function extractProductsFromPage(base64Image: string, retryCount = 0): Promise<ProductExtraction[]> {
-  const model = "gemini-3-flash-preview";
+  if (!apiKey) {
+    throw new Error("API Key do Gemini não configurada. Verifique as variáveis de ambiente.");
+  }
+
+  const model = "gemini-3.1-flash-lite-preview";
   const MAX_RETRIES = 5;
   
   const prompt = `Analise esta página de catálogo de produtos com precisão cirúrgica.
@@ -34,7 +58,7 @@ REGRAS CRÍTICAS:
 - Retorne APENAS o JSON.`;
 
   try {
-    const response = await ai.models.generateContent({
+    const result = await ai.models.generateContent({
       model,
       contents: [
         {
@@ -70,15 +94,14 @@ REGRAS CRÍTICAS:
       },
     });
 
-    const text = response.text;
+    const text = result.text;
     if (!text) return [];
     return JSON.parse(text);
   } catch (error: any) {
     // Handle quota exceeded error (429)
     if (error?.message?.includes('429') || error?.status === 'RESOURCE_EXHAUSTED' || error?.message?.includes('quota')) {
       if (retryCount < MAX_RETRIES) {
-        // More aggressive initial retry, then exponential
-        const delay = Math.pow(2, retryCount) * 2000; // 2s, 4s, 8s, 16s, 32s
+        const delay = Math.pow(2, retryCount) * 2000;
         console.warn(`Quota exceeded. Retrying in ${delay}ms... (Attempt ${retryCount + 1}/${MAX_RETRIES})`);
         await wait(delay);
         return extractProductsFromPage(base64Image, retryCount + 1);
