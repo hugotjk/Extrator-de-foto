@@ -285,8 +285,8 @@ export default function App() {
       
       setState({ status: 'processing', message: 'Iniciando análise...', progress: 20 });
 
-      // Process pages in small batches to speed up while respecting rate limits
-      const CONCURRENCY = 3; // Process 3 pages at a time
+      // Process pages sequentially to respect free tier rate limits
+      const CONCURRENCY = 1; // Process 1 page at a time to stay within limits
       const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
       
       for (let i = 0; i < pageNumbers.length; i += CONCURRENCY) {
@@ -325,9 +325,10 @@ export default function App() {
           }
         }));
 
-        // Small delay between batches
+        // Increased delay between sequential page processing
         if (i + CONCURRENCY < pageNumbers.length) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          // 4 second delay between pages to keep RPM (Requests Per Minute) low
+          await new Promise(resolve => setTimeout(resolve, 4000));
         }
       }
 

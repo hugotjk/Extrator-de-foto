@@ -100,8 +100,9 @@ REGRAS CRÍTICAS:
     // Handle quota exceeded error (429)
     if (error?.message?.includes('429') || error?.status === 'RESOURCE_EXHAUSTED' || error?.message?.includes('quota')) {
       if (retryCount < MAX_RETRIES) {
-        const delay = Math.pow(2, retryCount) * 2000;
-        console.warn(`Quota exceeded. Retrying in ${delay}ms... (Attempt ${retryCount + 1}/${MAX_RETRIES})`);
+        // Base delay is 5 seconds now, with exponential growth
+        const delay = Math.pow(2, retryCount) * 5000;
+        console.warn(`Quota excedida. Tentando novamente em ${delay/1000}s... (Tentativa ${retryCount + 1}/${MAX_RETRIES})`);
         await wait(delay);
         return extractProductsFromPage(base64Image, retryCount + 1);
       }
